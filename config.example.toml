@@ -1,0 +1,10 @@
+# Sample config — copy to ~/.config/polish/config.toml
+
+hotkey = "cmd+shift+j"
+provider = "mock"          # mock | openai | anthropic
+model = "gpt-4o-mini"
+base_url = "https://api.openai.com/v1"
+prompt = "Rewrite the following text to be clear and concise. Reply with only the rewritten text."
+capture_mode = "selection_then_sentence"
+max_sentence_len = 400
+clipboard_restore_delay_ms = 250
