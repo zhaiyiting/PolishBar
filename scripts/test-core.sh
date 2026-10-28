@@ -1,6 +1,6 @@
 #!/bin/sh
-# Compile and run the Foundation-free PolishCore tests with swiftc directly.
-# (SwiftPM is unavailable in some Command Line Tools installs; this bypasses it.)
+# Compile and run the PolishCore tests with swiftc directly.
+# (Bypasses SwiftPM; handy on Command Line Tools installs where SwiftPM is broken.)
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

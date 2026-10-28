@@ -13,11 +13,23 @@ final class HotkeyManager {
 
     @discardableResult
     func register(_ spec: String) -> Bool {
+        unregister()
         installHandler()
         guard let (keyCode, modifiers) = Self.parse(spec) else { return false }
         let hotKeyID = EventHotKeyID(signature: Self.signature, id: 1)
         let status = RegisterEventHotKey(keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef)
         return status == noErr
+    }
+
+    func unregister() {
+        if let hotKeyRef {
+            UnregisterEventHotKey(hotKeyRef)
+            self.hotKeyRef = nil
+        }
+        if let handlerRef {
+            RemoveEventHandler(handlerRef)
+            self.handlerRef = nil
+        }
     }
 
     private func installHandler() {

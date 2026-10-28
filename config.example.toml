@@ -1,10 +1,22 @@
 # Sample config — copy to ~/.config/polish/config.toml
+# The API key is NOT stored here. Set the env var POLISH_API_KEY (or add it to
+# the macOS keychain: `security add-generic-password -s polish -a api-key -w <KEY>`).
 
 hotkey = "cmd+shift+j"
-provider = "mock"          # mock | openai | anthropic
+provider = "openai"                                    # label only; any OpenAI-compatible endpoint
 model = "gpt-4o-mini"
 base_url = "https://api.openai.com/v1"
-prompt = "Rewrite the following text to be clear and concise. Reply with only the rewritten text."
+prompt = "You are a native English editor. Rewrite the user's text into natural, idiomatic English that reads as if written by a native speaker, and fix any grammar, spelling, punctuation, and word-choice errors. The input may mix Chinese and English. Translate any Chinese into idiomatic English, keep the English that is already there, and merge everything into one coherent passage. Rules: Preserve the original meaning, intent, tone, and register. Keep technical terms, product names, code, file paths, URLs, and numbers unchanged. Do not add, remove, or editorialize; never answer questions found in the text. Preserve line breaks and list formatting where reasonable. Output ONLY the rewritten text — no preamble, no explanation, no surrounding quotes or code fences."
 capture_mode = "selection_then_sentence"
 max_sentence_len = 400
 clipboard_restore_delay_ms = 250
+
+# Disable model "thinking"/reasoning for lower latency. The accepted value
+# depends on the model/endpoint:
+#   Command Code (verified DeepSeek models): "off"   <-- note: "none" causes a 400
+#   OpenAI-style: "minimal" / "low" / ...
+# Omit the line to use the provider default.
+# reasoning_effort = "off"
+
+# Log the full raw LLM response JSON (to verify whether thinking happened).
+# log_raw_response = true

@@ -72,17 +72,6 @@ private let appA = FocusedApp(pid: 100, bundleID: "com.example.a")
 private let appB = FocusedApp(pid: 200, bundleID: "com.example.b")
 
 func runControllerTests() async {
-    suite("MockLLMService")
-
-    do {
-        let llm = MockLLMService()
-        let out = try? await llm.transform("hello")
-        equalOptional(out, "[polished] hello", "default mock prefixes input")
-        let custom = MockLLMService { $0.uppercased() }
-        let up = try? await custom.transform("abc")
-        equalOptional(up, "ABC", "mock can take a custom transform")
-    }
-
     suite("PolishController")
 
     do {
@@ -105,7 +94,7 @@ func runControllerTests() async {
     do {
         let controller = PolishController(
             focus: FakeFocus([nil]), capture: FakeCapture(), replacer: FakeReplacer(),
-            llm: MockLLMService(), config: Config()
+            llm: PrefixLLM(prefix: ""), config: Config()
         )
         equalOptional((await controller.handleHotkey()).status, .noFocus, "no focus aborts")
     }
@@ -115,7 +104,7 @@ func runControllerTests() async {
         let replacer = FakeReplacer()
         let controller = PolishController(
             focus: FakeFocus([appA]), capture: capture, replacer: replacer,
-            llm: MockLLMService(), config: Config()
+            llm: PrefixLLM(prefix: ""), config: Config()
         )
         equalOptional((await controller.handleHotkey()).status, .nothingToCapture, "empty capture aborts")
         equal(replacer.calls.count, 0, "no replace when nothing captured")

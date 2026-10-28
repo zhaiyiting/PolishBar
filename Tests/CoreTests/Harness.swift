@@ -37,6 +37,15 @@ func equalOptional<T: Equatable>(_ actual: T?, _ expected: T?, _ label: String, 
     }
 }
 
+func checkThrows(_ label: String, file: String = #file, line: Int = #line, _ body: () throws -> Void) {
+    do {
+        try body()
+        check(false, "\(label) — expected a throw", file: file, line: line)
+    } catch {
+        check(true, label, file: file, line: line)
+    }
+}
+
 func finish() {
     print("\n\(_total) checks, \(_failed) failed")
     if _failed > 0 {

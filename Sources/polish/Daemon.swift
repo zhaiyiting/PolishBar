@@ -1,40 +1,26 @@
 import AppKit
 import Foundation
 import PolishCore
+import PolishMac
 
-/// Wires the concrete macOS implementations and runs the event loop.
+/// CLI bootstrap: loads config/key, starts the shared `PolishService`, and runs
+/// the AppKit event loop (which delivers the Carbon hotkey events).
 final class Daemon {
     private let config: Config
-    private let controller: PolishController
-    private var hotkey: HotkeyManager?
 
     init(config: Config) {
         self.config = config
-        let clipboard = Clipboard()
-        let synth = KeystrokeSynthesizer()
-        let ax = AXText(clipboard: clipboard, synth: synth, restoreDelayMS: config.clipboardRestoreDelayMS)
-        self.controller = PolishController(
-            focus: SystemFocus(),
-            capture: ax,
-            replacer: ax,
-            llm: Daemon.makeLLM(config: config),
-            config: config,
-            log: Daemon.log
-        )
-    }
-
-    static func makeLLM(config: Config) -> LLMService {
-        if config.provider.lowercased() == "mock" {
-            return MockLLMService()
-        }
-        let key = APIKeyResolver.resolve(
-            environment: ProcessInfo.processInfo.environment,
-            keychain: Keychain.apiKey()
-        ) ?? ""
-        return CloudLLMService(config: config, apiKey: key)
     }
 
     func run() {
+        guard let apiKey = APIKeyResolver.resolve(
+            environment: ProcessInfo.processInfo.environment,
+            keychain: Keychain.apiKey()
+        ) else {
+            Daemon.log("no API key found — set POLISH_API_KEY (or store it in the keychain).")
+            exit(1)
+        }
+
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
@@ -47,18 +33,11 @@ final class Daemon {
 
         Daemon.writePidFile()
 
-        let controller = self.controller
-        let manager = HotkeyManager {
-            Task { _ = await controller.handleHotkey() }
-        }
-        if manager.register(config.hotkey) {
-            Daemon.log("ready — hotkey=\(config.hotkey) provider=\(config.provider) mode=\(config.captureMode)")
-        } else {
-            Daemon.log("failed to register hotkey '\(config.hotkey)'")
-        }
-        self.hotkey = manager
+        let service = PolishService(config: config, apiKey: apiKey, log: Daemon.log)
+        service.start()
 
         app.run()
+        service.stop()
         Daemon.removePidFile()
     }
 

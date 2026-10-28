@@ -28,8 +28,8 @@ func runConfigTests() {
     }
 
     do {
-        let cfg = Config.parse("provider = \"mock\"\nunknown_key = \"whatever\"\nnope = 9")
-        equal(cfg, Config(provider: "mock"), "ignores unknown keys")
+        let cfg = Config.parse("provider = \"openai\"\nunknown_key = \"whatever\"\nnope = 9")
+        equal(cfg, Config.default, "ignores unknown keys")
     }
 
     do {
@@ -45,6 +45,16 @@ func runConfigTests() {
     do {
         let cfg = Config.parse("hotkey = cmd+shift+j")
         equal(cfg.hotkey, Config.default.hotkey, "unquoted value is ignored (keeps default)")
+    }
+
+    do {
+        equalOptional(Config.parse("reasoning_effort = \"off\"").reasoningEffort, "off", "parses reasoning_effort")
+        equalOptional(Config.default.reasoningEffort, nil, "reasoning_effort omitted by default")
+    }
+
+    do {
+        equal(Config.parse("log_raw_response = true").logRawResponse, true, "parses log_raw_response = true")
+        equal(Config.default.logRawResponse, false, "log_raw_response defaults to false")
     }
 
     suite("API key precedence")
@@ -70,6 +80,28 @@ func runConfigTests() {
         "nil when nothing is available"
     )
 
-    check(Config.default.needsAPIKey == false, "mock provider needs no key")
-    check(Config(provider: "openai").needsAPIKey, "cloud provider needs a key")
+    suite("Config.encode round-trip")
+
+    do {
+        var config = Config.default
+        config.hotkey = "ctrl+alt+p"
+        config.provider = "commandcode"
+        config.model = "deepseek-v4-flash"
+        config.baseURL = "https://api.example.com/v1"
+        config.prompt = "line one\nline \"two\" with \\ backslash and # hash"
+        config.maxSentenceLength = 123
+        config.clipboardRestoreDelayMS = 42
+        config.reasoningEffort = "off"
+        config.logRawResponse = true
+
+        let encoded = config.encode()
+        equal(Config.parse(encoded), config, "encode -> parse round-trips all fields")
+    }
+
+    do {
+        let encoded = Config.default.encode()
+        check(encoded.contains("log_raw_response = false"), "encodes booleans unquoted")
+        check(!encoded.contains("reasoning_effort"), "omits nil reasoning_effort")
+        equal(Config.parse(encoded), Config.default, "default round-trips")
+    }
 }

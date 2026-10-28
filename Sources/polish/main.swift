@@ -1,6 +1,7 @@
 import Darwin
 import Foundation
 import PolishCore
+import PolishMac
 
 func printUsage() {
     print("""
@@ -9,11 +10,38 @@ func printUsage() {
     USAGE:
       polish            Start the daemon (default)
       polish run        Start the daemon
+      polish exec TEXT  Send TEXT through the LLM once and print the result
+                        (reads stdin when no TEXT is given)
       polish doctor     Show permission + config status
       polish stop       Stop a running daemon
       polish --version  Print version
       polish help       Show this help
     """)
+}
+
+func runExec(_ text: String) async {
+    let config = ConfigStore.load()
+    guard let apiKey = APIKeyResolver.resolve(
+        environment: ProcessInfo.processInfo.environment,
+        keychain: Keychain.apiKey()
+    ) else {
+        FileHandle.standardError.write(Data("no API key found — set POLISH_API_KEY\n".utf8))
+        exit(1)
+    }
+
+    let service = makePolishLLM(config: config, apiKey: apiKey, log: { print("[polish] \($0)") })
+    do {
+        let output = try await service.transform(text)
+        print("[polish] result:\n\(output)")
+    } catch {
+        FileHandle.standardError.write(Data("[polish] \(error)\n".utf8))
+        exit(1)
+    }
+}
+
+func readStdin() -> String {
+    let data = FileHandle.standardInput.readDataToEndOfFile()
+    return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 }
 
 func runDoctor() {
@@ -30,15 +58,11 @@ func runDoctor() {
     print("accessibility: \(Permissions.isTrusted ? "granted" : "NOT granted")")
     print("  binary    : \(Permissions.executablePath())")
 
-    if config.needsAPIKey {
-        let key = APIKeyResolver.resolve(
-            environment: ProcessInfo.processInfo.environment,
-            keychain: Keychain.apiKey()
-        )
-        print("api key     : \(key == nil ? "missing (env POLISH_API_KEY or keychain)" : "present")")
-    } else {
-        print("api key     : not required (mock provider)")
-    }
+    let key = APIKeyResolver.resolve(
+        environment: ProcessInfo.processInfo.environment,
+        keychain: Keychain.apiKey()
+    )
+    print("api key     : \(key == nil ? "missing (set POLISH_API_KEY or add to keychain)" : "present")")
 }
 
 func runStop() {
@@ -61,6 +85,9 @@ let arguments = Array(CommandLine.arguments.dropFirst())
 switch arguments.first ?? "run" {
 case "run", "start":
     Daemon(config: ConfigStore.load()).run()
+case "exec":
+    let inline = arguments.dropFirst().joined(separator: " ")
+    await runExec(inline.isEmpty ? readStdin() : inline)
 case "doctor":
     runDoctor()
 case "stop":

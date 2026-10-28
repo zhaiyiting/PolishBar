@@ -6,14 +6,23 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [
         .executable(name: "polish", targets: ["polish"]),
+        .executable(name: "PolishApp", targets: ["PolishApp"]),
         .library(name: "PolishCore", targets: ["PolishCore"]),
+        .library(name: "PolishMac", targets: ["PolishMac"]),
     ],
     targets: [
-        // Pure, Foundation-free logic. Unit-tested by the CoreTests harness.
+        // Logic + wire codec. No AppKit/Carbon; unit-tested by CoreTests.
         .target(name: "PolishCore"),
 
-        // macOS integration + CLI. Depends on AppKit/Carbon/Foundation.
-        .executableTarget(name: "polish", dependencies: ["PolishCore"]),
+        // Shared macOS integration "kernel" (AX, hotkey, pasteboard, LLM client,
+        // config/keychain, PolishService). Used by both front-ends.
+        .target(name: "PolishMac", dependencies: ["PolishCore"]),
+
+        // CLI front-end (dev): daemon, doctor, exec, stop.
+        .executableTarget(name: "polish", dependencies: ["PolishCore", "PolishMac"]),
+
+        // Menu-bar app front-end (users): start/stop + settings.
+        .executableTarget(name: "PolishApp", dependencies: ["PolishCore", "PolishMac"]),
 
         // Dependency-free test harness (runs with `swift run CoreTests`).
         .executableTarget(name: "CoreTests", dependencies: ["PolishCore"], path: "Tests/CoreTests"),
