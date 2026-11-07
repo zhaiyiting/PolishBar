@@ -60,35 +60,35 @@ func runConfigTests() {
     suite("API key precedence")
 
     equalOptional(
-        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": "env-key"], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": "env-key"], storedKey: "kc-key"),
         "env-key",
-        "environment wins over keychain"
+        "environment wins over storedKey"
     )
     equalOptional(
-        APIKeyResolver.resolve(environment: [:], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: [:], storedKey: "kc-key"),
         "kc-key",
-        "falls back to keychain"
+        "falls back to storedKey"
     )
     equalOptional(
-        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": ""], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": ""], storedKey: "kc-key"),
         "kc-key",
         "empty env var is treated as absent"
     )
     equalOptional(
-        APIKeyResolver.resolve(environment: ["POLISH_API_KEY": "legacy-key"], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: ["POLISH_API_KEY": "legacy-key"], storedKey: "kc-key"),
         "legacy-key",
         "legacy env var still resolves"
     )
     equalOptional(
         APIKeyResolver.resolve(
             environment: ["POLISHBAR_API_KEY": "new-key", "POLISH_API_KEY": "legacy-key"],
-            keychain: nil
+            storedKey: nil
         ),
         "new-key",
         "new env var wins over legacy"
     )
     equalOptional(
-        APIKeyResolver.resolve(environment: [:], keychain: nil),
+        APIKeyResolver.resolve(environment: [:], storedKey: nil),
         nil,
         "nil when nothing is available"
     )

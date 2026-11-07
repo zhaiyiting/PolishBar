@@ -142,7 +142,7 @@ public struct Config: Equatable, Sendable {
     }
 }
 
-/// Resolves the API key with the documented precedence: environment over keychain.
+/// Resolves the API key with the documented precedence: environment over storedKey.
 public enum APIKeyResolver {
     public static let environmentVariable = "POLISHBAR_API_KEY"
     /// Pre-rename name, still read so existing shells keep working.
@@ -159,12 +159,12 @@ public enum APIKeyResolver {
         return nil
     }
 
-    public static func resolve(environment: [String: String], keychain: String?) -> String? {
+    public static func resolve(environment: [String: String], storedKey: String?) -> String? {
         if let env = environmentValue(in: environment) {
             return env
         }
-        if let keychain, !keychain.trimmed().isEmpty {
-            return keychain
+        if let storedKey, !storedKey.trimmed().isEmpty {
+            return storedKey
         }
         return nil
     }

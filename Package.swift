@@ -6,7 +6,9 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [
         .executable(name: "polishbar", targets: ["polishbar"]),
-        .executable(name: "PolishBar", targets: ["PolishBarApp"]),
+        // Keep the product name distinct from the CLI's; macOS filesystems are
+        // case-insensitive, so "PolishBar" and "polishbar" would collide.
+        .executable(name: "PolishBarApp", targets: ["PolishBarApp"]),
         .library(name: "PolishBarCore", targets: ["PolishBarCore"]),
         .library(name: "PolishBarMac", targets: ["PolishBarMac"]),
     ],
@@ -15,7 +17,7 @@ let package = Package(
         .target(name: "PolishBarCore"),
 
         // Shared macOS integration "kernel" (AX, hotkey, pasteboard, LLM client,
-        // config/keychain, PolishBarService). Used by both front-ends.
+        // config/key storage, PolishBarService). Used by both front-ends.
         .target(name: "PolishBarMac", dependencies: ["PolishBarCore"]),
 
         // CLI front-end (dev): daemon, doctor, exec, stop.

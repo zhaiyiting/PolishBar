@@ -46,9 +46,26 @@ nothing.
 2. Click **+** and add `PolishBar.app` (the built bundle or the copy in Applications).
 3. Turn the switch on. If it was already on after a rebuild, turn it off and on again.
 
-Use **Settings → Service → Grant Access…** in the app to jump to the right pane.
+In the app, **Settings → Service → Open Settings** jumps to that pane, while
+**Grant Access…** raises the macOS permission prompt.
+
 The CLI binary needs the same permission when run from a terminal; grant it to
 the terminal app or the built `polishbar` binary.
+
+### Upgrading from the old `Polish` name
+
+Move your existing settings and key, then stop any daemon started by the old
+build:
+
+```bash
+mkdir -p ~/.config/polishbar
+cp ~/.config/polish/config.toml ~/.config/polishbar/config.toml
+cp -p ~/.config/polish/api-key ~/.config/polishbar/api-key
+kill "$(cat ~/.config/polish/polish.pid)" 2>/dev/null || true
+```
+
+The bundle identifier changed, so grant Accessibility to the new `PolishBar.app`
+again.
 
 ## API key
 
@@ -65,6 +82,10 @@ export POLISHBAR_API_KEY="sk-..."
 ```
 
 The pre-rename variable `POLISH_API_KEY` is still read as a fallback.
+
+A copy of the app launched from Finder or the Dock does not inherit shell
+exports, so use Settings for the app and export the variable when running the
+CLI.
 
 ## Usage
 
@@ -103,7 +124,7 @@ key.
 | `capture_mode` | `"selection_then_sentence"` | Capture strategy. |
 | `max_sentence_len` | `400` | Cap on the preceding-sentence capture. |
 | `clipboard_restore_delay_ms` | `250` | Delay before restoring the clipboard after paste. |
-| `reasoning_effort` | unset | Passed through as `reasoning_effort`; `"off"` for Command Code, `"low"`/`"minimal"` for OpenAI-style endpoints. |
+| `reasoning_effort` | unset | Passed through as `reasoning_effort`; `"off"` for Command Code, `"minimal"`/`"low"` for most OpenAI-style endpoints, or omit for the provider default. |
 | `log_raw_response` | `false` | Log the full raw LLM response (to verify thinking/reasoning). |
 
 ## How it works

@@ -2,7 +2,7 @@ import Foundation
 import PolishBarCore
 
 /// OpenAI-compatible chat-completions client. The key comes from
-/// `POLISHBAR_API_KEY` (or the keychain); see `APIKeyResolver`.
+/// `POLISHBAR_API_KEY` (or the stored key file); see `APIKeyResolver`.
 final class CloudLLMService: LLMService {
     struct APIError: Error, CustomStringConvertible {
         let description: String

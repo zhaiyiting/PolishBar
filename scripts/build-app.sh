@@ -13,13 +13,13 @@ VERSION="0.1.0"
 APP_DIR="$ROOT/dist/$APP_NAME.app"
 
 echo "[app] building (release)…"
-swift build -c release --product PolishBar
+swift build -c release --product PolishBarApp
 BIN_DIR="$(swift build -c release --show-bin-path)"
 
 echo "[app] assembling $APP_DIR"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
-cp "$BIN_DIR/PolishBar" "$APP_DIR/Contents/MacOS/$APP_NAME"
+cp "$BIN_DIR/PolishBarApp" "$APP_DIR/Contents/MacOS/$APP_NAME"
 
 ICON="$ROOT/Resources/AppIcon.icns"
 if [ -f "$ICON" ]; then

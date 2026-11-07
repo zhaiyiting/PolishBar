@@ -70,7 +70,7 @@ shipped package deviates from this plan's file/type names and supersedes its
 
 ## Conventions
 
-- Run all commands from the repo root: `/Users/zhai/wsp/opencode_polish`.
+- Run all commands from the repo root: `~/wsp/opencode_polish`.
 - Build: `swift build` — Test: `swift test` — Run: `swift run polish`.
 - Commit after every task (messages given per task).
 - TDD: write the failing test, watch it fail, implement minimally, watch it pass, commit.

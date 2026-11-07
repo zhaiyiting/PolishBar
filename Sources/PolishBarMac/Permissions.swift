@@ -14,7 +14,7 @@ public enum Permissions {
     }
 
     public static func executablePath() -> String {
-        Bundle.main.executablePath ?? CommandLine.arguments.first ?? "polish"
+        Bundle.main.executablePath ?? CommandLine.arguments.first ?? "polishbar"
     }
 
     /// Opens System Settings > Privacy & Security > Accessibility.

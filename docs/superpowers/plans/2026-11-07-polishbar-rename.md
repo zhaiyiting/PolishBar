@@ -36,7 +36,7 @@
 - [ ] **Step 1: Verify the baseline harness**
 
 Run: `./scripts/test-core.sh`
-Expected: `92 checks, 0 failed` and `ALL PASS`.
+Expected: `94 checks, 0 failed` and `ALL PASS`.
 
 - [ ] **Step 2: Commit the in-progress menu-bar work**
 
@@ -89,7 +89,7 @@ Apply these exact replacements across `Sources/`, `Tests/`, and `Package.swift`:
 - [ ] **Step 3: Run the harness**
 
 Run: `./scripts/test-core.sh` (first update its `-module-name`/library names to `PolishBarCore`)
-Expected: `92 checks, 0 failed`.
+Expected: `94 checks, 0 failed`.
 
 - [ ] **Step 4: Commit**
 
@@ -102,7 +102,7 @@ git commit -m "refactor: rename package, modules, and types to PolishBar"
 
 **Files:**
 - Modify: `Sources/PolishBarMac/ConfigStore.swift`, `KeyStore.swift`, `Permissions.swift`
-- Modify: `Sources/Polishbar/main.swift`, `Daemon.swift`
+- Modify: `Sources/polishbar/main.swift`, `Daemon.swift`
 - Modify: `Sources/PolishBarApp/AppModel.swift`, `PolishBarAppMain.swift`, `SettingsView.swift`, `APIKeySheet.swift`
 - Modify: `scripts/build-app.sh`, `scripts/run.sh`, `config.example.toml`
 - Migrate: `~/.config/polish/{config.toml,api-key}` → `~/.config/polishbar/`
