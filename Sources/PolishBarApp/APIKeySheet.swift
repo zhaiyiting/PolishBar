@@ -14,7 +14,7 @@ struct APIKeySheet: View {
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { save() }
 
-            Text("Saved to ~/.config/polish/api-key (readable only by you).")
+            Text("Saved to ~/.config/polishbar/api-key (readable only by you).")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

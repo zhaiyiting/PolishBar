@@ -1,4 +1,4 @@
-import PolishCore
+import PolishBarCore
 
 // MARK: - Fakes
 
@@ -72,14 +72,14 @@ private let appA = FocusedApp(pid: 100, bundleID: "com.example.a")
 private let appB = FocusedApp(pid: 200, bundleID: "com.example.b")
 
 func runControllerTests() async {
-    suite("PolishController")
+    suite("PolishBarController")
 
     do {
         let focus = FakeFocus([appA, appA])
         let capture = FakeCapture()
         capture.result = CapturedText(text: "hello", app: appA)
         let replacer = FakeReplacer()
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: focus, capture: capture, replacer: replacer,
             llm: PrefixLLM(prefix: "[p] "), config: Config()
         )
@@ -92,7 +92,7 @@ func runControllerTests() async {
     }
 
     do {
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([nil]), capture: FakeCapture(), replacer: FakeReplacer(),
             llm: PrefixLLM(prefix: ""), config: Config()
         )
@@ -102,7 +102,7 @@ func runControllerTests() async {
     do {
         let capture = FakeCapture()
         let replacer = FakeReplacer()
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([appA]), capture: capture, replacer: replacer,
             llm: PrefixLLM(prefix: ""), config: Config()
         )
@@ -114,7 +114,7 @@ func runControllerTests() async {
         let capture = FakeCapture()
         capture.result = CapturedText(text: "hi", app: appA)
         let replacer = FakeReplacer()
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([appA, appB]), capture: capture, replacer: replacer,
             llm: PrefixLLM(prefix: "[p] "), config: Config()
         )
@@ -127,7 +127,7 @@ func runControllerTests() async {
         capture.result = CapturedText(text: "hi", app: appA)
         let replacer = FakeReplacer()
         replacer.succeeds = false
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([appA, appA]), capture: capture, replacer: replacer,
             llm: PrefixLLM(prefix: "[p] "), config: Config()
         )
@@ -137,7 +137,7 @@ func runControllerTests() async {
     do {
         let capture = FakeCapture()
         capture.result = CapturedText(text: "hi", app: appA)
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([appA]), capture: capture, replacer: FakeReplacer(),
             llm: FailingLLM(), config: Config()
         )
@@ -149,7 +149,7 @@ func runControllerTests() async {
         capture.result = CapturedText(text: "hi", app: appA)
         let replacer = FakeReplacer()
         let gate = GateLLM()
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: FakeFocus([appA, appA]), capture: capture, replacer: replacer,
             llm: gate, config: Config()
         )

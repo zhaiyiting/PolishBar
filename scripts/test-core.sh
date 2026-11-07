@@ -1,5 +1,5 @@
 #!/bin/sh
-# Compile and run the PolishCore tests with swiftc directly.
+# Compile and run the PolishBarCore tests with swiftc directly.
 # (Bypasses SwiftPM; handy on Command Line Tools installs where SwiftPM is broken.)
 set -eu
 
@@ -9,15 +9,15 @@ mkdir -p "$OUT"
 
 SWIFTC="${SWIFTC:-swiftc}"
 
-"$SWIFTC" -module-name PolishCore \
+"$SWIFTC" -module-name PolishBarCore \
     -emit-library -emit-module \
-    -o "$OUT/libPolishCore.dylib" \
-    "$ROOT"/Sources/PolishCore/*.swift
+    -o "$OUT/libPolishBarCore.dylib" \
+    "$ROOT"/Sources/PolishBarCore/*.swift
 
 "$SWIFTC" \
-    -I "$OUT" -L "$OUT" -lPolishCore \
+    -I "$OUT" -L "$OUT" -lPolishBarCore \
     -Xlinker -rpath -Xlinker "$OUT" \
     -o "$OUT/coretests" \
-    "$ROOT"/Tests/CoreTests/*.swift
+    "$ROOT"/Tests/PolishBarTests/*.swift
 
 "$OUT/coretests"

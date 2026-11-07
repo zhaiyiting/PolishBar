@@ -1,5 +1,5 @@
 import AppKit
-import PolishCore
+import PolishBarCore
 
 /// Reports the frontmost application via NSWorkspace.
 struct SystemFocus: FocusProviding {

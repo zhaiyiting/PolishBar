@@ -1,9 +1,9 @@
 import AppKit
 import Foundation
-import PolishCore
-import PolishMac
+import PolishBarCore
+import PolishBarMac
 
-/// CLI bootstrap: loads config/key, starts the shared `PolishService`, and runs
+/// CLI bootstrap: loads config/key, starts the shared `PolishBarService`, and runs
 /// the AppKit event loop (which delivers the Carbon hotkey events).
 final class Daemon {
     private let config: Config
@@ -14,7 +14,7 @@ final class Daemon {
 
     func run() {
         guard let apiKey = KeyStore.resolve(environment: ProcessInfo.processInfo.environment) else {
-            Daemon.log("no API key found — set POLISH_API_KEY or store one (app Settings / ~/.config/polish/api-key).")
+            Daemon.log("no API key found — set POLISHBAR_API_KEY or store one (app Settings / ~/.config/polishbar/api-key).")
             exit(1)
         }
 
@@ -30,7 +30,7 @@ final class Daemon {
 
         Daemon.writePidFile()
 
-        let service = PolishService(config: config, apiKey: apiKey, log: Daemon.log)
+        let service = PolishBarService(config: config, apiKey: apiKey, log: Daemon.log)
         service.start()
 
         app.run()
@@ -39,12 +39,12 @@ final class Daemon {
     }
 
     static func log(_ message: String) {
-        FileHandle.standardError.write(Data("[polish] \(message)\n".utf8))
+        FileHandle.standardError.write(Data("[polishbar] \(message)\n".utf8))
     }
 
     static var pidFilePath: String {
         let home = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        return "\(home)/.config/polish/polish.pid"
+        return "\(home)/.config/polishbar/polishbar.pid"
     }
 
     static func writePidFile() {

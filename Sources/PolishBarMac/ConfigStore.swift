@@ -1,11 +1,11 @@
 import Foundation
-import PolishCore
+import PolishBarCore
 
-/// Reads and writes the flat TOML config at `~/.config/polish/config.toml`.
+/// Reads and writes the flat TOML config at `~/.config/polishbar/config.toml`.
 public enum ConfigStore {
     public static var defaultPath: String {
         let home = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        return "\(home)/.config/polish/config.toml"
+        return "\(home)/.config/polishbar/config.toml"
     }
 
     public static func load(path: String = defaultPath) -> Config {

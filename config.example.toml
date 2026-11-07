@@ -1,6 +1,6 @@
-# Sample config — copy to ~/.config/polish/config.toml
-# The API key is NOT stored here. Set the env var POLISH_API_KEY, or store it in
-# ~/.config/polish/api-key (the app's Settings does this; chmod 600).
+# Sample config — copy to ~/.config/polishbar/config.toml
+# The API key is NOT stored here. Set the env var POLISHBAR_API_KEY, or store it in
+# ~/.config/polishbar/api-key (the app's Settings does this; chmod 600).
 
 hotkey = "cmd+shift+j"
 provider = "openai"                                    # label only; any OpenAI-compatible endpoint

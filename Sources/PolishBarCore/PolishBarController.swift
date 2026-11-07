@@ -2,7 +2,7 @@
 ///
 /// All OS interaction is injected via protocols, so this type is fully testable
 /// with fakes and contains no AppKit/Carbon/Foundation dependencies.
-public final class PolishController {
+public final class PolishBarController {
     public enum Status: Equatable, Sendable {
         case replaced
         case busy

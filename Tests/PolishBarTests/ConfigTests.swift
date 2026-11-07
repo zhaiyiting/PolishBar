@@ -1,4 +1,4 @@
-import PolishCore
+import PolishBarCore
 
 func runConfigTests() {
     suite("Config")
@@ -60,7 +60,7 @@ func runConfigTests() {
     suite("API key precedence")
 
     equalOptional(
-        APIKeyResolver.resolve(environment: ["POLISH_API_KEY": "env-key"], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": "env-key"], keychain: "kc-key"),
         "env-key",
         "environment wins over keychain"
     )
@@ -70,9 +70,22 @@ func runConfigTests() {
         "falls back to keychain"
     )
     equalOptional(
-        APIKeyResolver.resolve(environment: ["POLISH_API_KEY": ""], keychain: "kc-key"),
+        APIKeyResolver.resolve(environment: ["POLISHBAR_API_KEY": ""], keychain: "kc-key"),
         "kc-key",
         "empty env var is treated as absent"
+    )
+    equalOptional(
+        APIKeyResolver.resolve(environment: ["POLISH_API_KEY": "legacy-key"], keychain: "kc-key"),
+        "legacy-key",
+        "legacy env var still resolves"
+    )
+    equalOptional(
+        APIKeyResolver.resolve(
+            environment: ["POLISHBAR_API_KEY": "new-key", "POLISH_API_KEY": "legacy-key"],
+            keychain: nil
+        ),
+        "new-key",
+        "new env var wins over legacy"
     )
     equalOptional(
         APIKeyResolver.resolve(environment: [:], keychain: nil),

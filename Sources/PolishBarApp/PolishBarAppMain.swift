@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct PolishAppMain: App {
+struct PolishBarAppMain: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
@@ -13,7 +13,7 @@ struct PolishAppMain: App {
                 .opacity(model.isRunning ? 1.0 : 0.55)
         }
 
-        Window("Polish Settings", id: "settings") {
+        Window("PolishBar Settings", id: "settings") {
             SettingsView(model: model)
         }
         .windowResizability(.contentSize)
@@ -38,6 +38,6 @@ private struct MenuContent: View {
 
         Divider()
 
-        Button("Quit Polish") { NSApplication.shared.terminate(nil) }
+        Button("Quit PolishBar") { NSApplication.shared.terminate(nil) }
     }
 }

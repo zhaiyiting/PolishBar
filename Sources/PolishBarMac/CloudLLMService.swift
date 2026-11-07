@@ -1,8 +1,8 @@
 import Foundation
-import PolishCore
+import PolishBarCore
 
 /// OpenAI-compatible chat-completions client. The key comes from
-/// `POLISH_API_KEY` (or the keychain); see `APIKeyResolver`.
+/// `POLISHBAR_API_KEY` (or the keychain); see `APIKeyResolver`.
 final class CloudLLMService: LLMService {
     struct APIError: Error, CustomStringConvertible {
         let description: String
@@ -27,7 +27,7 @@ final class CloudLLMService: LLMService {
 
     func transform(_ text: String) async throws -> String {
         guard !apiKey.isEmpty else {
-            throw APIError(description: "no API key (set POLISH_API_KEY)")
+            throw APIError(description: "no API key (set POLISHBAR_API_KEY)")
         }
         guard let url = URL(string: config.baseURL + "/chat/completions") else {
             throw APIError(description: "invalid base_url: \(config.baseURL)")

@@ -2,30 +2,30 @@
 import PackageDescription
 
 let package = Package(
-    name: "Polish",
+    name: "PolishBar",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "polish", targets: ["polish"]),
-        .executable(name: "PolishApp", targets: ["PolishApp"]),
-        .library(name: "PolishCore", targets: ["PolishCore"]),
-        .library(name: "PolishMac", targets: ["PolishMac"]),
+        .executable(name: "polishbar", targets: ["polishbar"]),
+        .executable(name: "PolishBar", targets: ["PolishBarApp"]),
+        .library(name: "PolishBarCore", targets: ["PolishBarCore"]),
+        .library(name: "PolishBarMac", targets: ["PolishBarMac"]),
     ],
     targets: [
-        // Logic + wire codec. No AppKit/Carbon; unit-tested by CoreTests.
-        .target(name: "PolishCore"),
+        // Logic + wire codec. No AppKit/Carbon; unit-tested by PolishBarTests.
+        .target(name: "PolishBarCore"),
 
         // Shared macOS integration "kernel" (AX, hotkey, pasteboard, LLM client,
-        // config/keychain, PolishService). Used by both front-ends.
-        .target(name: "PolishMac", dependencies: ["PolishCore"]),
+        // config/keychain, PolishBarService). Used by both front-ends.
+        .target(name: "PolishBarMac", dependencies: ["PolishBarCore"]),
 
         // CLI front-end (dev): daemon, doctor, exec, stop.
-        .executableTarget(name: "polish", dependencies: ["PolishCore", "PolishMac"]),
+        .executableTarget(name: "polishbar", dependencies: ["PolishBarCore", "PolishBarMac"]),
 
         // Menu-bar app front-end (users): start/stop + settings.
-        .executableTarget(name: "PolishApp", dependencies: ["PolishCore", "PolishMac"]),
+        .executableTarget(name: "PolishBarApp", dependencies: ["PolishBarCore", "PolishBarMac"]),
 
-        // Dependency-free test harness (runs with `swift run CoreTests`).
-        .executableTarget(name: "CoreTests", dependencies: ["PolishCore"], path: "Tests/CoreTests"),
+        // Dependency-free test harness (runs with `swift run PolishBarTests`).
+        .executableTarget(name: "PolishBarTests", dependencies: ["PolishBarCore"], path: "Tests/PolishBarTests"),
     ],
     swiftLanguageModes: [.v5]
 )

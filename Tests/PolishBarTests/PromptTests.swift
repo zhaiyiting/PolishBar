@@ -1,4 +1,4 @@
-import PolishCore
+import PolishBarCore
 
 func runPromptTests() {
     suite("DefaultPrompt")

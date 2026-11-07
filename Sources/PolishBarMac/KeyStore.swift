@@ -1,5 +1,5 @@
 import Foundation
-import PolishCore
+import PolishBarCore
 
 /// Stores the API key in a user-only (0600) file.
 ///
@@ -10,7 +10,7 @@ import PolishCore
 public enum KeyStore {
     public static var path: String {
         let home = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        return "\(home)/.config/polish/api-key"
+        return "\(home)/.config/polishbar/api-key"
     }
 
     public static func read() -> String? {
@@ -33,10 +33,10 @@ public enum KeyStore {
         try? FileManager.default.removeItem(atPath: path)
     }
 
-    /// Resolution order: environment (`POLISH_API_KEY`) → stored file.
+    /// Resolution order: environment (`POLISHBAR_API_KEY`, then legacy
+    /// `POLISH_API_KEY`) → stored file.
     public static func resolve(environment: [String: String]) -> String? {
-        if let env = environment[APIKeyResolver.environmentVariable],
-           !env.trimmingCharacters(in: .whitespaces).isEmpty {
+        if let env = APIKeyResolver.environmentValue(in: environment) {
             return env
         }
         return read()

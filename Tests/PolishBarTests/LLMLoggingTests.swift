@@ -1,4 +1,4 @@
-import PolishCore
+import PolishBarCore
 
 private struct FixedLLM: LLMService {
     let value: String

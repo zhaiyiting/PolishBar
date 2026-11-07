@@ -1,7 +1,7 @@
 // Dependency-free test harness (stdlib only).
 //
 // Runs with either:
-//   swift run CoreTests        (SwiftPM, on a healthy toolchain)
+//   swift run PolishBarTests        (SwiftPM, on a healthy toolchain)
 //   ./scripts/test-core.sh     (direct swiftc; used in this repo)
 
 var _total = 0

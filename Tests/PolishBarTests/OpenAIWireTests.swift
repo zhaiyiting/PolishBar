@@ -1,5 +1,5 @@
 import Foundation
-import PolishCore
+import PolishBarCore
 
 func runOpenAIWireTests() {
     suite("OpenAIWire.requestBody")

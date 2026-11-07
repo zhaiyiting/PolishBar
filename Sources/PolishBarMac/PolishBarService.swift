@@ -1,5 +1,5 @@
 import Foundation
-import PolishCore
+import PolishBarCore
 
 /// Owns the wiring shared by every front-end: the global hotkey and the
 /// capture -> transform -> replace controller.
@@ -7,7 +7,7 @@ import PolishCore
 /// It does **not** run an event loop — the caller owns that (the CLI daemon
 /// uses `NSApplication.run()`; the app uses SwiftUI's run loop). This is the
 /// "kernel" that both the CLI and the menu-bar app drive.
-public final class PolishService {
+public final class PolishBarService {
     public enum Status: Equatable, Sendable {
         case stopped
         case running
@@ -37,11 +37,11 @@ public final class PolishService {
         let clipboard = Clipboard()
         let synth = KeystrokeSynthesizer()
         let ax = AXText(clipboard: clipboard, synth: synth, restoreDelayMS: config.clipboardRestoreDelayMS)
-        let controller = PolishController(
+        let controller = PolishBarController(
             focus: SystemFocus(),
             capture: ax,
             replacer: ax,
-            llm: makePolishLLM(config: config, apiKey: apiKey, log: log),
+            llm: makePolishBarLLM(config: config, apiKey: apiKey, log: log),
             config: config,
             log: log
         )

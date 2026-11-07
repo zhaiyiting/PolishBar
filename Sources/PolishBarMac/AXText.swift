@@ -1,6 +1,6 @@
 import ApplicationServices
 import Foundation
-import PolishCore
+import PolishBarCore
 
 /// Captures text from the focused element (AX first, clipboard fallback) and
 /// replaces text via the pasteboard.

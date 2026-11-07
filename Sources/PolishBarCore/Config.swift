@@ -1,4 +1,4 @@
-/// Flat configuration, loaded from `~/.config/polish/config.toml`.
+/// Flat configuration, loaded from `~/.config/polishbar/config.toml`.
 ///
 /// Only flat `key = value` lines are supported (string values must be
 /// double-quoted). Unknown keys, comments and blank lines are ignored.
@@ -144,10 +144,23 @@ public struct Config: Equatable, Sendable {
 
 /// Resolves the API key with the documented precedence: environment over keychain.
 public enum APIKeyResolver {
-    public static let environmentVariable = "POLISH_API_KEY"
+    public static let environmentVariable = "POLISHBAR_API_KEY"
+    /// Pre-rename name, still read so existing shells keep working.
+    public static let legacyEnvironmentVariable = "POLISH_API_KEY"
+
+    /// Returns the first non-empty environment value, preferring the current
+    /// variable name over the legacy one.
+    public static func environmentValue(in environment: [String: String]) -> String? {
+        for name in [environmentVariable, legacyEnvironmentVariable] {
+            if let value = environment[name], !value.trimmed().isEmpty {
+                return value
+            }
+        }
+        return nil
+    }
 
     public static func resolve(environment: [String: String], keychain: String?) -> String? {
-        if let env = environment[environmentVariable], !env.trimmed().isEmpty {
+        if let env = environmentValue(in: environment) {
             return env
         }
         if let keychain, !keychain.trimmed().isEmpty {

@@ -1,8 +1,8 @@
 import AppKit
 import Combine
 import Foundation
-import PolishCore
-import PolishMac
+import PolishBarCore
+import PolishBarMac
 
 /// View-model backing the menu bar and the settings window.
 @MainActor
@@ -19,13 +19,13 @@ final class AppModel: ObservableObject {
     @Published var statusMessage = "Stopped"
     @Published var logLines: [String] = []
 
-    private var service: PolishService?
+    private var service: PolishBarService?
     private var configSink: AnyCancellable?
     private var saveTask: Task<Void, Never>?
     /// In-memory copy of the stored key, read from disk once (and on explicit
     /// refresh) so we never hit the filesystem on every UI event.
     private var cachedKey: String?
-    private static let hintDefaultsKey = "polish.apiKeyHint"
+    private static let hintDefaultsKey = "polishbar.apiKeyHint"
 
     init() {
         config = ConfigStore.load()
@@ -58,7 +58,7 @@ final class AppModel: ObservableObject {
             statusMessage = "No API key — set one in Settings"
             return
         }
-        let service = PolishService(config: config, apiKey: key, log: appendLog)
+        let service = PolishBarService(config: config, apiKey: key, log: appendLog)
         isRunning = service.start()
         self.service = service
         statusMessage = isRunning ? "Running (\(config.hotkey))" : "Hotkey failed"

@@ -1,37 +1,37 @@
 import Darwin
 import Foundation
-import PolishCore
-import PolishMac
+import PolishBarCore
+import PolishBarMac
 
 func printUsage() {
     print("""
-    polish \(Version.current) — hotkey text polisher
+    polishbar \(Version.current) — hotkey text polisher
 
     USAGE:
-      polish            Start the daemon (default)
-      polish run        Start the daemon
-      polish exec TEXT  Send TEXT through the LLM once and print the result
-                        (reads stdin when no TEXT is given)
-      polish doctor     Show permission + config status
-      polish stop       Stop a running daemon
-      polish --version  Print version
-      polish help       Show this help
+      polishbar              Start the daemon (default)
+      polishbar run          Start the daemon
+      polishbar exec TEXT    Send TEXT through the LLM once and print the result
+                             (reads stdin when no TEXT is given)
+      polishbar doctor       Show permission + config status
+      polishbar stop         Stop a running daemon
+      polishbar --version    Print version
+      polishbar help         Show this help
     """)
 }
 
 func runExec(_ text: String) async {
     let config = ConfigStore.load()
     guard let apiKey = KeyStore.resolve(environment: ProcessInfo.processInfo.environment) else {
-        FileHandle.standardError.write(Data("no API key found — set POLISH_API_KEY or store one (app Settings / ~/.config/polish/api-key)\n".utf8))
+        FileHandle.standardError.write(Data("no API key found — set POLISHBAR_API_KEY or store one (app Settings / ~/.config/polishbar/api-key)\n".utf8))
         exit(1)
     }
 
-    let service = makePolishLLM(config: config, apiKey: apiKey, log: { print("[polish] \($0)") })
+    let service = makePolishBarLLM(config: config, apiKey: apiKey, log: { print("[polishbar] \($0)") })
     do {
         let output = try await service.transform(text)
-        print("[polish] result:\n\(output)")
+        print("[polishbar] result:\n\(output)")
     } catch {
-        FileHandle.standardError.write(Data("[polish] \(error)\n".utf8))
+        FileHandle.standardError.write(Data("[polishbar] \(error)\n".utf8))
         exit(1)
     }
 }
@@ -46,7 +46,7 @@ func runDoctor() {
     let exists = FileManager.default.fileExists(atPath: path)
     let config = ConfigStore.load(path: path)
 
-    print("polish \(Version.current)")
+    print("polishbar \(Version.current)")
     print("config file : \(path)\(exists ? "" : "  (missing; using defaults)")")
     print("hotkey      : \(config.hotkey)")
     print("provider    : \(config.provider)")
@@ -56,7 +56,7 @@ func runDoctor() {
     print("  binary    : \(Permissions.executablePath())")
 
     let key = KeyStore.resolve(environment: ProcessInfo.processInfo.environment)
-    print("api key     : \(key == nil ? "missing (set POLISH_API_KEY or use the app / ~/.config/polish/api-key)" : "present")")
+    print("api key     : \(key == nil ? "missing (set POLISHBAR_API_KEY or use the app / ~/.config/polishbar/api-key)" : "present")")
 }
 
 func runStop() {
@@ -67,7 +67,7 @@ func runStop() {
         exit(1)
     }
     if kill(pid, SIGTERM) == 0 {
-        print("stopped polish (pid \(pid))")
+        print("stopped polishbar (pid \(pid))")
     } else {
         FileHandle.standardError.write(Data("could not signal pid \(pid)\n".utf8))
         try? FileManager.default.removeItem(atPath: path)
@@ -87,7 +87,7 @@ case "doctor":
 case "stop":
     runStop()
 case "version", "--version", "-v":
-    print("polish \(Version.current)")
+    print("polishbar \(Version.current)")
 case "help", "--help", "-h":
     printUsage()
 default:

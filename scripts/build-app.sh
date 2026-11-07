@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the menu-bar app and assemble a signed Polish.app bundle.
+# Build the menu-bar app and assemble a signed PolishBar.app bundle.
 #
 # Usage: ./scripts/build-app.sh
 set -eu
@@ -7,19 +7,19 @@ set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-APP_NAME="Polish"
-BUNDLE_ID="local.polish.app"
+APP_NAME="PolishBar"
+BUNDLE_ID="local.polishbar.app"
 VERSION="0.1.0"
 APP_DIR="$ROOT/dist/$APP_NAME.app"
 
 echo "[app] building (release)…"
-swift build -c release --product PolishApp
+swift build -c release --product PolishBar
 BIN_DIR="$(swift build -c release --show-bin-path)"
 
 echo "[app] assembling $APP_DIR"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
-cp "$BIN_DIR/PolishApp" "$APP_DIR/Contents/MacOS/$APP_NAME"
+cp "$BIN_DIR/PolishBar" "$APP_DIR/Contents/MacOS/$APP_NAME"
 
 ICON="$ROOT/Resources/AppIcon.icns"
 if [ -f "$ICON" ]; then

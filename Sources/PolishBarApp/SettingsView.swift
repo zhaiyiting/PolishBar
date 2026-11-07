@@ -38,7 +38,7 @@ struct SettingsView: View {
                         Button("Remove", role: .destructive) { model.clearKey() }
                     }
                 }
-                Text("Stored in ~/.config/polish/api-key (readable only by you). The CLI can also read POLISH_API_KEY.")
+                Text("Stored in ~/.config/polishbar/api-key (readable only by you). The CLI can also read POLISHBAR_API_KEY.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
