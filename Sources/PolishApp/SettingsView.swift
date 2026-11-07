@@ -33,18 +33,12 @@ struct SettingsView: View {
                         .foregroundStyle(model.hasStoredKey ? Color.green : Color.orange)
                     Text(model.hasStoredKey ? "Configured \(model.storedKeyHint ?? "")" : "Not configured")
                     Spacer()
+                    Button(model.hasStoredKey ? "Change…" : "Set API Key…") { model.presentAPIKeySheet() }
                     if model.hasStoredKey {
                         Button("Remove", role: .destructive) { model.clearKey() }
                     }
                 }
-
-                HStack {
-                    SecureField("Paste your API key", text: $model.apiKeyInput)
-                        .onSubmit { model.saveKey() }
-                    Button("Save") { model.saveKey() }
-                }
-
-                Text("Stored securely in your macOS keychain. The CLI can also read POLISH_API_KEY.")
+                Text("Stored in ~/.config/polish/api-key (readable only by you). The CLI can also read POLISH_API_KEY.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -75,17 +69,15 @@ struct SettingsView: View {
                 }
                 .frame(height: 120)
             }
-
-            HStack {
-                Spacer()
-                Button("Save") { model.save() }
-                    .keyboardShortcut("s")
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 560, height: 640)
+        .frame(width: 560, height: 660)
         .background(WindowAccessor())
         .onAppear { model.refreshSystemState() }
+        .onDisappear { model.saveConfigNow() }
+        .sheet(isPresented: $model.showAPIKeySheet) {
+            APIKeySheet(model: model)
+        }
     }
 
     private var reasoningEffort: Binding<String> {

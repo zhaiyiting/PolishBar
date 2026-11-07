@@ -18,8 +18,15 @@ BIN_DIR="$(swift build -c release --show-bin-path)"
 
 echo "[app] assembling $APP_DIR"
 rm -rf "$APP_DIR"
-mkdir -p "$APP_DIR/Contents/MacOS"
+mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN_DIR/PolishApp" "$APP_DIR/Contents/MacOS/$APP_NAME"
+
+ICON="$ROOT/Resources/AppIcon.icns"
+if [ -f "$ICON" ]; then
+    cp "$ICON" "$APP_DIR/Contents/Resources/AppIcon.icns"
+else
+    echo "[app] warning: $ICON not found (run scripts/make-icon.swift)"
+fi
 
 cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -30,6 +37,7 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
     <key>CFBundleDisplayName</key><string>$APP_NAME</string>
     <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
     <key>CFBundleExecutable</key><string>$APP_NAME</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>$VERSION</string>
     <key>CFBundleVersion</key><string>1</string>

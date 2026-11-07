@@ -9,7 +9,8 @@ struct PolishAppMain: App {
         MenuBarExtra {
             MenuContent(model: model)
         } label: {
-            Image(systemName: model.isRunning ? "text.badge.checkmark" : "text.badge.xmark")
+            Image(nsImage: MenuBarGlyph.image)
+                .opacity(model.isRunning ? 1.0 : 0.55)
         }
 
         Window("Polish Settings", id: "settings") {

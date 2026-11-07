@@ -1,6 +1,6 @@
 # Sample config — copy to ~/.config/polish/config.toml
-# The API key is NOT stored here. Set the env var POLISH_API_KEY (or add it to
-# the macOS keychain: `security add-generic-password -s polish -a api-key -w <KEY>`).
+# The API key is NOT stored here. Set the env var POLISH_API_KEY, or store it in
+# ~/.config/polish/api-key (the app's Settings does this; chmod 600).
 
 hotkey = "cmd+shift+j"
 provider = "openai"                                    # label only; any OpenAI-compatible endpoint

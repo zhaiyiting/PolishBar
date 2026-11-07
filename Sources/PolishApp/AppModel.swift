@@ -3,38 +3,49 @@ import Combine
 import Foundation
 import PolishCore
 import PolishMac
-import Security
 
 /// View-model backing the menu bar and the settings window.
 @MainActor
 final class AppModel: ObservableObject {
     @Published var config: Config
-    /// Newly typed key, held only until saved. Never prefilled with the stored
-    /// secret, so the key isn't sitting in the UI/memory.
+    /// Newly typed key in the key sheet, held only until saved.
     @Published var apiKeyInput = ""
     @Published private(set) var hasStoredKey = false
     /// A non-secret hint for display, e.g. "••••1234".
     @Published private(set) var storedKeyHint: String?
+    @Published var showAPIKeySheet = false
     @Published var isRunning = false
     @Published var accessibilityTrusted = false
     @Published var statusMessage = "Stopped"
     @Published var logLines: [String] = []
 
     private var service: PolishService?
+    private var configSink: AnyCancellable?
+    private var saveTask: Task<Void, Never>?
+    /// In-memory copy of the stored key, read from disk once (and on explicit
+    /// refresh) so we never hit the filesystem on every UI event.
+    private var cachedKey: String?
     private static let hintDefaultsKey = "polish.apiKeyHint"
 
     init() {
         config = ConfigStore.load()
-        hasStoredKey = Keychain.apiKey() != nil
+        cachedKey = KeyStore.read()
+        hasStoredKey = cachedKey != nil
         storedKeyHint = UserDefaults.standard.string(forKey: Self.hintDefaultsKey)
         accessibilityTrusted = Permissions.isTrusted
+
+        // Auto-save config on any change (debounced).
+        configSink = $config.dropFirst().sink { [weak self] _ in
+            self?.scheduleConfigSave()
+        }
     }
 
     // MARK: - Service
 
     func refreshSystemState() {
         accessibilityTrusted = Permissions.isTrusted
-        hasStoredKey = Keychain.apiKey() != nil
+        cachedKey = KeyStore.read()
+        hasStoredKey = cachedKey != nil
     }
 
     func toggle() {
@@ -44,7 +55,7 @@ final class AppModel: ObservableObject {
     func start() {
         let key = resolvedKey()
         guard !key.isEmpty else {
-            statusMessage = "No API key — store one in Settings"
+            statusMessage = "No API key — set one in Settings"
             return
         }
         let service = PolishService(config: config, apiKey: key, log: appendLog)
@@ -60,54 +71,66 @@ final class AppModel: ObservableObject {
         statusMessage = "Stopped"
     }
 
-    // MARK: - Settings
+    // MARK: - Config (auto-saved)
 
-    func save() {
+    /// Debounced save; restarts the service if it is running so changes apply.
+    func scheduleConfigSave() {
+        saveTask?.cancel()
+        saveTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            guard !Task.isCancelled else { return }
+            self?.saveConfigNow()
+        }
+    }
+
+    func saveConfigNow() {
+        saveTask?.cancel()
+        saveTask = nil
         do {
             try ConfigStore.save(config)
         } catch {
             appendLog("failed to save config: \(error)")
-            statusMessage = "Save failed"
             return
         }
-        if !apiKeyInput.isEmpty {
-            saveKey()
-        }
-        statusMessage = "Settings saved"
-        appendLog("settings saved")
-        restartIfRunning()
+        if isRunning { restartIfRunning() }
     }
 
-    /// Saves the typed key to the keychain. Forgiving: if the field is empty it
-    /// just explains what to do rather than being disabled.
-    func saveKey() {
+    // MARK: - API key
+
+    func presentAPIKeySheet() {
+        apiKeyInput = ""
+        showAPIKeySheet = true
+    }
+
+    /// Stores the key. Returns false on failure (so the sheet can stay open).
+    @discardableResult
+    func saveKey() -> Bool {
         let value = apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else {
             statusMessage = "Paste your API key first"
-            return
+            return false
         }
-        let status = Keychain.set(apiKey: value)
-        guard status == errSecSuccess else {
-            statusMessage = "Keychain error \(status)"
-            appendLog("keychain error \(status)")
-            return
+        do {
+            try KeyStore.write(value)
+        } catch {
+            statusMessage = "Could not save key"
+            appendLog("failed to save key: \(error)")
+            return false
         }
+        cachedKey = value
         apiKeyInput = ""
         hasStoredKey = true
         storedKeyHint = Self.hint(for: value)
         UserDefaults.standard.set(storedKeyHint, forKey: Self.hintDefaultsKey)
         statusMessage = "API key saved"
-        appendLog("API key saved to keychain")
+        appendLog("API key saved")
         restartIfRunning()
+        return true
     }
 
     func clearKey() {
-        let status = Keychain.set(apiKey: "")
-        guard status == errSecSuccess else {
-            statusMessage = "Keychain error \(status)"
-            appendLog("keychain error \(status)")
-            return
-        }
+        KeyStore.delete()
+        cachedKey = nil
         apiKeyInput = ""
         hasStoredKey = false
         storedKeyHint = nil
@@ -120,6 +143,8 @@ final class AppModel: ObservableObject {
         key.count <= 4 ? "••••" : "••••" + String(key.suffix(4))
     }
 
+    // MARK: - Accessibility
+
     func requestAccessibility() {
         Permissions.request()
         refreshSystemState()
@@ -131,12 +156,9 @@ final class AppModel: ObservableObject {
 
     // MARK: - Internals
 
-    /// Environment (handy when launched from a terminal) → keychain.
+    /// Environment (handy when launched from a terminal) → stored file.
     private func resolvedKey() -> String {
-        APIKeyResolver.resolve(
-            environment: ProcessInfo.processInfo.environment,
-            keychain: Keychain.apiKey()
-        ) ?? ""
+        KeyStore.resolve(environment: ProcessInfo.processInfo.environment) ?? cachedKey ?? ""
     }
 
     private func restartIfRunning() {

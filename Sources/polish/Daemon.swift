@@ -13,11 +13,8 @@ final class Daemon {
     }
 
     func run() {
-        guard let apiKey = APIKeyResolver.resolve(
-            environment: ProcessInfo.processInfo.environment,
-            keychain: Keychain.apiKey()
-        ) else {
-            Daemon.log("no API key found — set POLISH_API_KEY (or store it in the keychain).")
+        guard let apiKey = KeyStore.resolve(environment: ProcessInfo.processInfo.environment) else {
+            Daemon.log("no API key found — set POLISH_API_KEY or store one (app Settings / ~/.config/polish/api-key).")
             exit(1)
         }
 

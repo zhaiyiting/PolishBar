@@ -21,11 +21,8 @@ func printUsage() {
 
 func runExec(_ text: String) async {
     let config = ConfigStore.load()
-    guard let apiKey = APIKeyResolver.resolve(
-        environment: ProcessInfo.processInfo.environment,
-        keychain: Keychain.apiKey()
-    ) else {
-        FileHandle.standardError.write(Data("no API key found — set POLISH_API_KEY\n".utf8))
+    guard let apiKey = KeyStore.resolve(environment: ProcessInfo.processInfo.environment) else {
+        FileHandle.standardError.write(Data("no API key found — set POLISH_API_KEY or store one (app Settings / ~/.config/polish/api-key)\n".utf8))
         exit(1)
     }
 
@@ -58,11 +55,8 @@ func runDoctor() {
     print("accessibility: \(Permissions.isTrusted ? "granted" : "NOT granted")")
     print("  binary    : \(Permissions.executablePath())")
 
-    let key = APIKeyResolver.resolve(
-        environment: ProcessInfo.processInfo.environment,
-        keychain: Keychain.apiKey()
-    )
-    print("api key     : \(key == nil ? "missing (set POLISH_API_KEY or add to keychain)" : "present")")
+    let key = KeyStore.resolve(environment: ProcessInfo.processInfo.environment)
+    print("api key     : \(key == nil ? "missing (set POLISH_API_KEY or use the app / ~/.config/polish/api-key)" : "present")")
 }
 
 func runStop() {
